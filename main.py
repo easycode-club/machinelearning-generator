@@ -8,7 +8,7 @@ def generate_init():
     c.write("from keras.models import Sequential")
     c.write("from keras.layers import Dense, Activation")
     c.write("from keras.optimizers import SGD")
-    c.write("from sklearn.model_validation import train_test_split")
+    c.write("from sklearn.model_selection import train_test_split")
     c.write("")
 
 def generate_end():
@@ -28,8 +28,8 @@ def generate_parse_data(inputs, outputs):
     for i in range(outputs):
         outputs_arr.append(k)
         k+=1
-    c.write("X = training[:,{0}]".format(inputs_arr))
-    c.write("Y = training[:,{0}]".format(outputs_arr))
+    c.write("X = data[:,{0}]".format(inputs_arr))
+    c.write("Y = data[:,{0}]".format(outputs_arr))
     c.write("return train_test_split(X,Y)")
     c.dedent()
 
