@@ -2,8 +2,11 @@ from codegenerator import CodeGeneratorBackend
 
 c = CodeGeneratorBackend()
 
-def generate_init():
+def generate_init(inputs,outputs,hidden_layers,activation_str):
     c.begin()
+    c.write("# no. of inputs: {0}".format(inputs))
+    c.write("# no. of outputs: {0}".format(outputs))
+    c.write("")
     c.write("import pandas as pd")
     c.write("from keras.models import Sequential")
     c.write("from keras.layers import Dense, Activation")
@@ -48,6 +51,7 @@ def generate_model(inputs,outputs,hidden_layers,activation_str):
         c.write("")
     c.write("# Output layer")
     c.write("model.add(Dense({0}))".format(outputs))
+    # TODO: Add optimizer functions
     c.write("optim = SGD(lr=0.001, momentum=0.9, nesterov=True)")
     c.write("model.compile(loss='mean_squared_error', optimizer=optim, metrics=['accuracy'])")
     c.write("return model")
@@ -70,7 +74,7 @@ def generate_testing(verbosity):
     c.write("")
 
 def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid', verbosity=True):
-    generate_init()
+    generate_init(inputs,outputs,hidden_layers,activation_str)
     generate_parse_data(inputs, outputs)
     generate_model(inputs,outputs,hidden_layers,activation_str)
     generate_training(verbosity)
