@@ -31,6 +31,7 @@ def generate_parse_data(inputs, outputs):
     c.write("X = data[:,{0}]".format(inputs_arr))
     c.write("Y = data[:,{0}]".format(outputs_arr))
     c.write("return train_test_split(X,Y)")
+    c.write("")
     c.dedent()
 
 def generate_model(inputs,outputs,hidden_layers):
@@ -50,14 +51,14 @@ def generate_model(inputs,outputs,hidden_layers):
 def generate_training():
     c.write("def train_model(model, X_train, X_test):")
     c.indent()
-    c.write("model.fit(X_train, Y_train, epochs=500, verbose=False, validation_split = 0.3, shuffle=True)")
+    c.write("model.fit(X_train, Y_train, epochs=500, verbose=True, validation_split = 0.3, shuffle=True)")
     c.dedent()
     c.write("")
 
 def generate_testing():
     c.write("def test_model(model, X_test, Y_test):")
     c.indent()
-    c.write("score = model.evaluate(X_test, Y_test, verbose=0)")
+    c.write("score = model.evaluate(X_test, Y_test, verbose=1)")
     c.write("return score")
     c.dedent()
     c.write("")
