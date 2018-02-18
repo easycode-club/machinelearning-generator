@@ -43,6 +43,15 @@ def generate_parse_data(inputs, outputs):
     c.write("")
     c.dedent()
 
+def generate_get_optimizer(function='SGD', *args):
+    # TODO: Add optimizer functions
+    c.write("def get_optimizer():")
+    c.indent()
+    c.write("return SGD(lr=0.001, momentum=0.9, nesterov=True)")
+    c.dedent()
+    c.write("")
+
+
 def generate_model(inputs,outputs,hidden_layers,activation_str):
     c.write("def get_model():")
     c.indent()
@@ -62,8 +71,7 @@ def generate_model(inputs,outputs,hidden_layers,activation_str):
         c.write("")
     c.write("# Output layer")
     c.write("model.add(Dense({0}))".format(outputs))
-    # TODO: Add optimizer functions
-    c.write("optim = SGD(lr=0.001, momentum=0.9, nesterov=True)")
+    c.write("optim = get_optimizer()")
     c.write("model.compile(loss='mean_squared_error', optimizer=optim, metrics=['accuracy'])")
     c.write("return model")
     c.dedent()
@@ -91,6 +99,7 @@ def generate_testing(verbosity):
 def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid', verbosity=True, tensorboard=False):
     generate_init(inputs,outputs,hidden_layers,activation_str)
     generate_parse_data(inputs, outputs)
+    generate_get_optimizer()
     generate_model(inputs,outputs,hidden_layers,activation_str)
     generate_training(verbosity,tensorboard)
     generate_testing(verbosity)
@@ -113,4 +122,4 @@ def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str=
 
     return generate_end()
 
-print(generate_network(hidden_layers=[10]))
+print(generate_network(hidden_layers=[10], tensorboard=False))
