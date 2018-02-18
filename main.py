@@ -2,7 +2,7 @@ from codegenerator import CodeGeneratorBackend
 
 c = CodeGeneratorBackend()
 
-def generate_init(inputs,outputs,hidden_layers,activation_str):
+def generate_init(inputs,outputs,hidden_layers,activation_str,optimizer):
     c.begin()
     c.write("# no. of inputs: {0}".format(inputs))
     c.write("# no. of outputs: {0}".format(outputs))
@@ -12,7 +12,7 @@ def generate_init(inputs,outputs,hidden_layers,activation_str):
     c.write("from keras import backend as K")
     c.write("from keras.models import Sequential")
     c.write("from keras.layers import Dense, Activation")
-    c.write("from keras.optimizers import SGD")
+    c.write("from keras.optimizers import {0}".format(optimizer))
     c.write("from sklearn.model_selection import train_test_split")
     c.write("from keras.callbacks import TensorBoard")
     c.write("")
@@ -83,7 +83,7 @@ def generate_model(inputs,outputs,hidden_layers,activation_str):
     c.write("")
 
 def generate_training(verbosity,tensorboard=False):
-    c.write("def train_model(model, X_train, X_test):")
+    c.write("def train_model(model, X_train, Y_train):")
     c.indent()
     callbacks = "[]"
     if verbosity and tensorboard:
@@ -98,8 +98,8 @@ def generate_testing(verbosity):
     c.indent()
     c.write("score = model.evaluate(X_test, Y_test, verbose={0})".format(verbosity))
     c.write("return score")
-    c.dedent()
     c.write("")
+    c.dedent()
 
 def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid',
@@ -117,20 +117,20 @@ def generate_network(
 
     tensorboard: To enable tensorboard output
     """
-    generate_init(inputs,outputs,hidden_layers,activation_str)
+    generate_init(inputs,outputs,hidden_layers,activation_str,optimizer)
     generate_parse_data(inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
     generate_model(inputs,outputs,hidden_layers,activation_str)
     generate_training(verbosity,tensorboard)
     generate_testing(verbosity)
 
-    c.write("if __name__ == '__main__':")
+    c.write("def main():")
     c.indent()
     c.write("# YOUR INPUT FILE GOES HERE")
     c.write("input_file = 'data.csv'")
     c.write("X_train, X_test, Y_train, Y_test = parse_data(input_file)")
     c.write("model = get_model()")
-    c.write("train_model(model, X_train, X_test)")
+    c.write("train_model(model, X_train, Y_train)")
     c.write("score = test_model(model, X_test, Y_test)")
     c.write("Y_pred = model.predict(X_test)")
     c.write("for i in range(len(X_test)):")
@@ -138,6 +138,11 @@ def generate_network(
     c.write("print(Y_pred[i], Y_test[i])")
     c.dedent()
     c.write("print('Score: ',score)")
+    c.dedent()
+    c.write("")
+    c.write("if __name__ == '__main__':")
+    c.indent()
+    c.write("main()")
     c.dedent()
 
     return generate_end()
