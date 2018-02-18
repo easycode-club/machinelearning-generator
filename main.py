@@ -8,11 +8,17 @@ def generate_init(inputs,outputs,hidden_layers,activation_str):
     c.write("# no. of outputs: {0}".format(outputs))
     c.write("")
     c.write("import pandas as pd")
+    c.write("import tensorflow as tf")
+    c.write("from keras import backend as K")
     c.write("from keras.models import Sequential")
     c.write("from keras.layers import Dense, Activation")
     c.write("from keras.optimizers import SGD")
     c.write("from sklearn.model_selection import train_test_split")
+    c.write("from keras.callbacks import TensorBoard")
     c.write("")
+    # In case, tensorflow needs to be replaced with something else
+    # c.write("sess = tf.Session()")
+    # c.write("K.set_session(sess)")
 
 def generate_end():
     return c.end()
@@ -43,7 +49,12 @@ def generate_model(inputs,outputs,hidden_layers,activation_str):
     c.write("model = Sequential()\n")
 
     c.write("# Input layer")
-    c.write("model.add(Dense({0},input_shape=({1},)))".format(hidden_layers[0],inputs))
+    if len(hidden_layers) == 0:
+        output_first_layer = outputs
+    else:
+        output_first_layer = hidden_layers[0]
+    c.write("model.add(Dense({0},input_shape=({1},)))".format(output_first_layer,inputs))
+    c.write("model.add(Activation('{0}'))".format(activation_str))
     c.write("")
     for i in range(0, len(hidden_layers)):
         c.write("model.add(Dense({0}))".format(hidden_layers[i]))
@@ -58,10 +69,14 @@ def generate_model(inputs,outputs,hidden_layers,activation_str):
     c.dedent()
     c.write("")
 
-def generate_training(verbosity):
+def generate_training(verbosity,tensorboard=False):
     c.write("def train_model(model, X_train, X_test):")
     c.indent()
-    c.write("model.fit(X_train, Y_train, epochs=500, verbose={0}, validation_split = 0.3, shuffle=True)".format(verbosity))
+    callbacks = "[]"
+    if verbosity and tensorboard:
+        c.write("tb_callback = TensorBoard(log_dir='/tmp/tf-output', histogram_freq=10, write_grads=True, write_images=True)")
+        callbacks = "[tb_callback]"
+    c.write("model.fit(X_train, Y_train, epochs=500, verbose={0}, validation_split = 0.3, shuffle=True,callbacks={1})".format(verbosity,callbacks))
     c.dedent()
     c.write("")
 
@@ -73,11 +88,11 @@ def generate_testing(verbosity):
     c.dedent()
     c.write("")
 
-def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid', verbosity=True):
+def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid', verbosity=True, tensorboard=False):
     generate_init(inputs,outputs,hidden_layers,activation_str)
     generate_parse_data(inputs, outputs)
     generate_model(inputs,outputs,hidden_layers,activation_str)
-    generate_training(verbosity)
+    generate_training(verbosity,tensorboard)
     generate_testing(verbosity)
 
     c.write("if __name__ == '__main__':")
@@ -98,4 +113,4 @@ def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str=
 
     return generate_end()
 
-print(generate_network())
+print(generate_network(hidden_layers=[10]))

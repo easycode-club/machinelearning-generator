@@ -4,7 +4,7 @@ def random_data():
     fl = open('data.csv','w+')
     fl.write('0,1,2,3,4,5')
     fl.write('\n')
-    for i in range(100):
+    for i in range(1000):
         a = random.randint(0,10)
         b = random.randint(0,10)
         c = random.randint(0,10)
