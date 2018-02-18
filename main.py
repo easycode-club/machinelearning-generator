@@ -43,11 +43,15 @@ def generate_parse_data(inputs, outputs):
     c.write("")
     c.dedent()
 
-def generate_get_optimizer(function='SGD', *args):
-    # TODO: Add optimizer functions
+def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, *args):
+    # TODO: Create a map of all the available optimizer functions and there parameters
     c.write("def get_optimizer():")
     c.indent()
-    c.write("return SGD(lr=0.001, momentum=0.9, nesterov=True)")
+    function_params = "lr={0}".format(learning_rate)
+    for key in args:
+        function_params += ", {0}={1}".format(key, args[key])
+    function_call = "{0}({1})".format(optimizer, function_params)
+    c.write("return {0}".format(function_call))
     c.dedent()
     c.write("")
 
@@ -96,10 +100,22 @@ def generate_testing(verbosity):
     c.dedent()
     c.write("")
 
-def generate_network(inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid', verbosity=True, tensorboard=False):
+def generate_network(
+    inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid',
+    optimizer='SGD', learning_rate=0.01,
+    verbosity=True, tensorboard=False):
+    """Create a neural networks based on these parameters
+    inputs: dimension of input shape
+    outputs: no. of outputs
+    hidden_layers: Array of hidden_layers required, empty if no hidden layers
+    activation_str: Name of Activation function
+    optimizer: Name of optimizer
+    learning_rate: Learning rate of the optimizer
+    tensorboard: To enable tensorboard output
+    """
     generate_init(inputs,outputs,hidden_layers,activation_str)
     generate_parse_data(inputs, outputs)
-    generate_get_optimizer()
+    generate_get_optimizer(optimizer, learning_rate)
     generate_model(inputs,outputs,hidden_layers,activation_str)
     generate_training(verbosity,tensorboard)
     generate_testing(verbosity)
