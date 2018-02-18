@@ -43,13 +43,14 @@ def generate_parse_data(inputs, outputs):
     c.write("")
     c.dedent()
 
-def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, *args):
+def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, kwargs={}):
     # TODO: Create a map of all the available optimizer functions and there parameters
+    # TODO: Add validation of kwargs from optimizer.json
     c.write("def get_optimizer():")
     c.indent()
     function_params = "lr={0}".format(learning_rate)
-    for key in args:
-        function_params += ", {0}={1}".format(key, args[key])
+    for key in kwargs:
+        function_params += ", {0}={1}".format(key, kwargs[key])
     function_call = "{0}({1})".format(optimizer, function_params)
     c.write("return {0}".format(function_call))
     c.dedent()
@@ -102,20 +103,23 @@ def generate_testing(verbosity):
 
 def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], activation_str='sigmoid',
-    optimizer='SGD', learning_rate=0.01,
+    optimizer='SGD', learning_rate=0.01, optimizer_params={},
     verbosity=True, tensorboard=False):
     """Create a neural networks based on these parameters
     inputs: dimension of input shape
     outputs: no. of outputs
     hidden_layers: Array of hidden_layers required, empty if no hidden layers
     activation_str: Name of Activation function
+
     optimizer: Name of optimizer
     learning_rate: Learning rate of the optimizer
+    optimizer_params: Additional params for optimizer as defined in optimzer.json
+
     tensorboard: To enable tensorboard output
     """
     generate_init(inputs,outputs,hidden_layers,activation_str)
     generate_parse_data(inputs, outputs)
-    generate_get_optimizer(optimizer, learning_rate)
+    generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
     generate_model(inputs,outputs,hidden_layers,activation_str)
     generate_training(verbosity,tensorboard)
     generate_testing(verbosity)
@@ -138,4 +142,5 @@ def generate_network(
 
     return generate_end()
 
-print(generate_network(hidden_layers=[10], tensorboard=False))
+if __name__ == '__main__':
+    print(generate_network(hidden_layers=[10], tensorboard=False, optimizer_params={'momentum': 0.0}))
