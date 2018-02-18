@@ -1,5 +1,5 @@
 import json
-from main import generate_network
+from src.main import generate_network
 
 def machinelearning_generate(event, context):
     input_body = event["body"]
@@ -21,3 +21,6 @@ def machinelearning_generate(event, context):
     }
 
     return response
+
+if __name__ == '__main__':
+    print(generate_network(hidden_layers=[10], tensorboard=False, optimizer_params={'momentum': 0.0}))

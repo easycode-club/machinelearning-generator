@@ -1,4 +1,4 @@
-from codegenerator import CodeGeneratorBackend
+from .codegenerator import CodeGeneratorBackend
 
 c = CodeGeneratorBackend()
 
@@ -146,6 +146,3 @@ def generate_network(
     c.dedent()
 
     return generate_end()
-
-if __name__ == '__main__':
-    print(generate_network(hidden_layers=[10], tensorboard=False, optimizer_params={'momentum': 0.0}))

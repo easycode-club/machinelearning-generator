@@ -46,14 +46,12 @@ provider:
 #    variable1: value1
 
 # you can add packaging information here
-#package:
-#  include:
-#    - include-me.py
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.py
-#    - exclude-me-dir/**
-
+package:
+ include:
+   - handler.py
+   - src/**/*.py
+ exclude:
+   - ".*/**"
 functions:
   generator:
     handler: handler.machinelearning_generate
