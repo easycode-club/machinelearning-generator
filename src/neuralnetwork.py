@@ -7,7 +7,7 @@ def generate_init(inputs,outputs,hidden_layers,activation_str,optimizer):
     c.begin()
     generate_comments(c, inputs, outputs)
     c.write("from keras.models import Sequential")
-    c.write("from keras.layers import Dense, Activation")
+    c.write("from keras.layers import Dense, Activation, Dropout")
     c.write("from keras.optimizers import {0}".format(optimizer))
     c.write("from keras.callbacks import TensorBoard")
     c.write("")
@@ -29,7 +29,7 @@ def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, kwargs={}):
     c.write("")
 
 
-def generate_model(inputs,outputs,type, hidden_layers,activation_str):
+def generate_model(inputs,outputs,type, hidden_layers,activation_str, dropout=True,dropout_rate=0.1):
     c.write("def get_model():")
     c.indent()
     c.write("model = Sequential()\n")
@@ -40,14 +40,19 @@ def generate_model(inputs,outputs,type, hidden_layers,activation_str):
     else:
         output_first_layer = hidden_layers[0]
     c.write("model.add(Dense({0},input_shape=({1},)))".format(output_first_layer,inputs))
-    c.write("model.add(Activation('{0}'))".format(activation_str))
-    c.write("")
-    for i in range(0, len(hidden_layers)):
-        c.write("model.add(Dense({0}))".format(hidden_layers[i]))
+    if dropout and len(hidden_layers) > 0:
         c.write("model.add(Activation('{0}'))".format(activation_str))
+        c.write("model.add(Dropout({0}))".format(dropout_rate))
+    c.write("")
+    for i in range(1, len(hidden_layers)):
+        c.write("model.add(Dense({0}, activation='{1}'))".format(hidden_layers[i], activation_str))
+        if dropout:
+            c.write("model.add(Dropout({0}))".format(dropout_rate))
         c.write("")
-    c.write("# Output layer")
-    c.write("model.add(Dense({0}))".format(outputs))
+    if len(hidden_layers) > 0:
+        c.write("# Output layer")
+        c.write("model.add(Dense({0}))".format(outputs))
+
     c.write("optim = get_optimizer()")
     if type == "classification":
         loss_function = "categorical_crossentropy"
@@ -80,6 +85,7 @@ def generate_testing(verbosity):
 def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], type='regression', activation_str='sigmoid',
     optimizer='SGD', learning_rate=0.01, optimizer_params={},
+    dropout=True, dropout_rate=0.1,
     verbosity=True, tensorboard=False, **kwargs):
     """Create a neural networks based on these parameters
     inputs: dimension of input shape
@@ -92,12 +98,14 @@ def generate_network(
     learning_rate: Learning rate of the optimizer
     optimizer_params: Additional params for optimizer as defined in optimzer.json
 
+    dropout_rate: Dropout rate
+
     tensorboard: To enable tensorboard output
     """
     generate_init(inputs,outputs,hidden_layers,activation_str,optimizer)
     generate_parse_data(c, inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
-    generate_model(inputs,outputs,type,hidden_layers,activation_str)
+    generate_model(inputs,outputs,type,hidden_layers,activation_str,dropout,dropout_rate)
     generate_training(verbosity,tensorboard)
     generate_testing(verbosity)
 
