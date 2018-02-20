@@ -6,8 +6,6 @@ c = CodeGeneratorBackend()
 def generate_init(inputs,outputs,hidden_layers,activation_str,optimizer):
     c.begin()
     generate_comments(c, inputs, outputs)
-    c.write("import tensorflow as tf")
-    c.write("from keras import backend as K")
     c.write("from keras.models import Sequential")
     c.write("from keras.layers import Dense, Activation")
     c.write("from keras.optimizers import {0}".format(optimizer))

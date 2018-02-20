@@ -1,6 +1,8 @@
 import requests
 import json
 body = {
+    "method": "supportvector",
+    "type": "regression",
     "optimizer": "RMSprop"
 }
 body = json.dumps(body)
