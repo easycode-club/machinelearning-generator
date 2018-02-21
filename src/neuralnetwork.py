@@ -55,7 +55,7 @@ def generate_model(inputs,outputs,type, hidden_layers,activation_str, dropout=Tr
 
     c.write("optim = get_optimizer()")
     if type == "classification":
-        loss_function = "categorical_crossentropy"
+        loss_function = "sparse_categorical_crossentropy"
     else:
         loss_function = "mean_squared_error"
     c.write("model.compile(loss='{0}', optimizer=optim, metrics=['accuracy'])".format(loss_function))
@@ -63,7 +63,7 @@ def generate_model(inputs,outputs,type, hidden_layers,activation_str, dropout=Tr
     c.dedent()
     c.write("")
 
-def generate_training(verbosity,tensorboard=False):
+def generate_training(verbosity,type,tensorboard=False):
     c.write("def train_model(model, X_train, Y_train):")
     c.indent()
     callbacks = "[]"
@@ -106,7 +106,7 @@ def generate_network(
     generate_parse_data(c, inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
     generate_model(inputs,outputs,type,hidden_layers,activation_str,dropout,dropout_rate)
-    generate_training(verbosity,tensorboard)
+    generate_training(verbosity,type,tensorboard)
     generate_testing(verbosity)
 
     generate_main(c)
