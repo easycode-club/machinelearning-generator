@@ -1,6 +1,5 @@
 __pycache__
 *.pyc
-data.csv
 output.py
 *.zip
 .serverless
