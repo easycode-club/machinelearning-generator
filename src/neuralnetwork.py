@@ -29,7 +29,7 @@ def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, kwargs={}):
     c.write("")
 
 
-def generate_model(inputs,outputs,type, hidden_layers,activation_str, dropout=True,dropout_rate=0.1):
+def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation_str, dropout=True,dropout_rate=0.1):
     c.write("def get_model():")
     c.indent()
     c.write("model = Sequential()\n")
@@ -54,10 +54,6 @@ def generate_model(inputs,outputs,type, hidden_layers,activation_str, dropout=Tr
         c.write("model.add(Dense({0}))".format(outputs))
 
     c.write("optim = get_optimizer()")
-    if type == "classification":
-        loss_function = "sparse_categorical_crossentropy"
-    else:
-        loss_function = "mean_squared_error"
     c.write("model.compile(loss='{0}', optimizer=optim, metrics=['accuracy'])".format(loss_function))
     c.write("return model")
     c.dedent()
@@ -84,6 +80,7 @@ def generate_testing(verbosity):
 
 def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], type='regression', activation_str='sigmoid',
+    loss_function='mean_squared_error',
     optimizer='SGD', learning_rate=0.01, optimizer_params={},
     dropout=True, dropout_rate=0.1,
     verbosity=True, tensorboard=False, **kwargs):
@@ -105,7 +102,7 @@ def generate_network(
     generate_init(inputs,outputs,hidden_layers,activation_str,optimizer)
     generate_parse_data(c, inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
-    generate_model(inputs,outputs,type,hidden_layers,activation_str,dropout,dropout_rate)
+    generate_model(inputs,outputs,type,hidden_layers, loss_function, activation_str,dropout,dropout_rate)
     generate_training(verbosity,type,tensorboard)
     generate_testing(verbosity)
 

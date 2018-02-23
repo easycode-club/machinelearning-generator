@@ -3,7 +3,7 @@ import json
 body = {
     "method": "supportvector",
     "type": "regression",
-    "optimizer": "RMSprop"
+    "kernel": "linear"
 }
 body = json.dumps(body)
 resp = requests.post("https://5xpj1pu5y8.execute-api.ap-south-1.amazonaws.com/dev/generator", data=body)
