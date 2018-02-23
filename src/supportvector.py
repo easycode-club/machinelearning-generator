@@ -15,10 +15,10 @@ def generate_init(inputs, type):
     c.write("from sklearn.svm import {0}".format(get_model_function(type)))
     c.write("")
 
-def generate_model(inputs, type):
+def generate_model(inputs, type, kernel):
     c.write("def get_model():")
     c.indent()
-    c.write("clf = {0}()".format(get_model_function(type)))
+    c.write("clf = {0}(kernel='{1}')".format(get_model_function(type), kernel))
     c.write("return clf")
     c.dedent()
     c.write("")
@@ -38,10 +38,10 @@ def generate_testing():
     c.write("")
     c.dedent()
 
-def generate_svm(inputs=3, type='regression', *args, **kwargs):
+def generate_svm(inputs=3, type='regression', kernel='rbf', *args, **kwargs):
     generate_init(inputs, type)
     generate_parse_data(c, inputs, outputs=1)
-    generate_model(inputs, type)
+    generate_model(inputs, type, kernel)
     generate_training()
     generate_testing()
 
