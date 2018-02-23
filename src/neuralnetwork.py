@@ -29,7 +29,7 @@ def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, kwargs={}):
     c.write("")
 
 
-def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation_str, dropout=True,dropout_rate=0.1):
+def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation_str, kernel_initializer,bias_initializer,dropout=True,dropout_rate=0.1):
     c.write("def get_model():")
     c.indent()
     c.write("model = Sequential()\n")
@@ -39,19 +39,19 @@ def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation
         output_first_layer = outputs
     else:
         output_first_layer = hidden_layers[0]
-    c.write("model.add(Dense({0},input_shape=({1},)))".format(output_first_layer,inputs))
+    c.write("model.add(Dense({0},input_shape=({1},),kernel_initializer='{2}',bias_initializer='{3}'))".format(output_first_layer,inputs,kernel_initializer,bias_initializer))
+    c.write("model.add(Activation('{0}'))".format(activation_str))    
     if dropout and len(hidden_layers) > 0:
-        c.write("model.add(Activation('{0}'))".format(activation_str))
         c.write("model.add(Dropout({0}))".format(dropout_rate))
     c.write("")
     for i in range(1, len(hidden_layers)):
-        c.write("model.add(Dense({0}, activation='{1}'))".format(hidden_layers[i], activation_str))
+        c.write("model.add(Dense({0}, activation='{1}',kernel_initializer='{2}',bias_initializer='{3}'))".format(hidden_layers[i], activation_str,kernel_initializer,bias_initializer))
         if dropout:
             c.write("model.add(Dropout({0}))".format(dropout_rate))
         c.write("")
     if len(hidden_layers) > 0:
         c.write("# Output layer")
-        c.write("model.add(Dense({0}))".format(outputs))
+        c.write("model.add(Dense({0},kernel_initializer='{1}',bias_initializer='{2}'))".format(outputs, kernel_initializer,bias_initializer))
 
     c.write("optim = get_optimizer()")
     c.write("model.compile(loss='{0}', optimizer=optim, metrics=['accuracy'])".format(loss_function))
@@ -59,14 +59,14 @@ def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation
     c.dedent()
     c.write("")
 
-def generate_training(verbosity,type,tensorboard=False):
+def generate_training(verbosity,type,epochs,tensorboard=False):
     c.write("def train_model(model, X_train, Y_train):")
     c.indent()
     callbacks = "[]"
     if verbosity and tensorboard:
         c.write("tb_callback = TensorBoard(log_dir='/tmp/tf-output', histogram_freq=10, write_grads=True, write_images=True)")
         callbacks = "[tb_callback]"
-    c.write("model.fit(X_train, Y_train, epochs=500, verbose={0}, validation_split = 0.3, shuffle=True,callbacks={1})".format(verbosity,callbacks))
+    c.write("model.fit(X_train, Y_train, epochs={0}, verbose={1}, validation_split = 0.3, shuffle=True,callbacks={2})".format(epochs,verbosity,callbacks))
     c.dedent()
     c.write("")
 
@@ -82,6 +82,9 @@ def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], type='regression', activation_str='sigmoid',
     loss_function='mean_squared_error',
     optimizer='SGD', learning_rate=0.01, optimizer_params={},
+    kernel_initializer='glorot_uniform',
+    bias_initializer='glorot_uniform',
+    epochs=100,
     dropout=True, dropout_rate=0.1,
     verbosity=True, tensorboard=False, **kwargs):
     """Create a neural networks based on these parameters
@@ -102,8 +105,8 @@ def generate_network(
     generate_init(inputs,outputs,hidden_layers,activation_str,optimizer)
     generate_parse_data(c, inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
-    generate_model(inputs,outputs,type,hidden_layers, loss_function, activation_str,dropout,dropout_rate)
-    generate_training(verbosity,type,tensorboard)
+    generate_model(inputs,outputs,type,hidden_layers, loss_function, activation_str,kernel_initializer,bias_initializer,dropout,dropout_rate)
+    generate_training(verbosity,type,epochs,tensorboard)
     generate_testing(verbosity)
 
     generate_main(c)
