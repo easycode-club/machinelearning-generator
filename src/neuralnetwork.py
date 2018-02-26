@@ -60,14 +60,18 @@ def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation
     c.dedent()
     c.write("")
 
-def generate_training(verbosity,type,epochs,tensorboard=False):
+def generate_training(verbosity,type,epochs,early_stopping,tensorboard=False):
     c.write("def train_model(model, X_train, Y_train):")
     c.indent()
-    c.write("early_stopping = EarlyStopping()")    
-    callbacks = "[early_stopping]"
+    callbacks = "[]"
+    if early_stopping:
+        c.write("early_stopping = EarlyStopping()")    
+        callbacks = "[early_stopping]"
     if tensorboard:
         c.write("tb_callback = TensorBoard(log_dir='/tmp/tf-output', histogram_freq=10, write_grads=True, write_images=True)")
-        callbacks = "[early_stopping,tb_callback]"
+        callbacks = "[tb_callback]"
+    if early_stopping and tensorboard:
+        callbacks = "[early_stopping.tb_callback]"
     c.write("model.fit(X_train, Y_train, epochs={0}, verbose={1}, validation_split = 0.3, shuffle=True,callbacks={2})".format(epochs,verbosity,callbacks))
     c.dedent()
     c.write("")
@@ -83,10 +87,11 @@ def generate_testing(verbosity):
 def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], type='regression', activation_str='sigmoid',
     loss_function='mean_squared_error',
-    optimizer='SGD', learning_rate=0.01, optimizer_params={},
+    optimizer='SGD', learning_rate=0.01, optimizer_params={'decay': 0.001},
     regularizer='l2',
     kernel_initializer='glorot_uniform',
     bias_initializer='glorot_uniform',
+    early_stopping=False,
     epochs=100,
     dropout=True, dropout_rate=0.1,
     verbosity=True, tensorboard=False, **kwargs):
@@ -109,7 +114,7 @@ def generate_network(
     generate_parse_data(c, inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
     generate_model(inputs,outputs,type,hidden_layers, loss_function, activation_str,regularizer,kernel_initializer,bias_initializer,dropout,dropout_rate)
-    generate_training(verbosity,type,epochs,tensorboard)
+    generate_training(verbosity,type,epochs,early_stopping,tensorboard)
     generate_testing(verbosity)
 
     generate_main(c)
