@@ -9,7 +9,7 @@ def generate_init(inputs,outputs,hidden_layers,activation_str,optimizer):
     c.write("from keras.models import Sequential")
     c.write("from keras.layers import Dense, Activation, Dropout")
     c.write("from keras.optimizers import {0}".format(optimizer))
-    c.write("from keras.callbacks import TensorBoard")
+    c.write("from keras.callbacks import TensorBoard, EarlyStopping")
     c.write("")
     # In case, tensorflow needs to be replaced with something else
     # c.write("sess = tf.Session()")
@@ -62,10 +62,11 @@ def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation
 def generate_training(verbosity,type,epochs,tensorboard=False):
     c.write("def train_model(model, X_train, Y_train):")
     c.indent()
-    callbacks = "[]"
+    c.write("early_stopping = EarlyStopping()")    
+    callbacks = "[early_stopping]"
     if verbosity and tensorboard:
         c.write("tb_callback = TensorBoard(log_dir='/tmp/tf-output', histogram_freq=10, write_grads=True, write_images=True)")
-        callbacks = "[tb_callback]"
+        callbacks = "[early_stopping,tb_callback]"
     c.write("model.fit(X_train, Y_train, epochs={0}, verbose={1}, validation_split = 0.3, shuffle=True,callbacks={2})".format(epochs,verbosity,callbacks))
     c.dedent()
     c.write("")

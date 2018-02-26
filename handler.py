@@ -23,5 +23,5 @@ def machinelearning_generate(event, context):
     return response
 
 if __name__ == '__main__':
-    code = generate_code(method="neuralnetwork", type="regression", activation_str='linear', loss_function='mean_squared_error', kernel_initializer='random_uniform',bias_initializer='random_uniform',optimizer='Adam',verbosity=False, hidden_layers=[10],dropout=False, tensorboard=False)
+    code = generate_code(method="neuralnetwork", type="regression", activation_str='linear', loss_function='mean_squared_error', kernel_initializer='random_uniform',bias_initializer='random_uniform',optimizer='Adam',verbosity=True, epochs=2000, hidden_layers=[10],dropout=False, tensorboard=False)
     print(code)
