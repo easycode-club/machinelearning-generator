@@ -64,7 +64,7 @@ def generate_training(verbosity,type,epochs,tensorboard=False):
     c.indent()
     c.write("early_stopping = EarlyStopping()")    
     callbacks = "[early_stopping]"
-    if verbosity and tensorboard:
+    if tensorboard:
         c.write("tb_callback = TensorBoard(log_dir='/tmp/tf-output', histogram_freq=10, write_grads=True, write_images=True)")
         callbacks = "[early_stopping,tb_callback]"
     c.write("model.fit(X_train, Y_train, epochs={0}, verbose={1}, validation_split = 0.3, shuffle=True,callbacks={2})".format(epochs,verbosity,callbacks))
