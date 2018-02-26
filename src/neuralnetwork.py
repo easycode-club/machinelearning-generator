@@ -10,6 +10,7 @@ def generate_init(inputs,outputs,hidden_layers,activation_str,optimizer):
     c.write("from keras.layers import Dense, Activation, Dropout")
     c.write("from keras.optimizers import {0}".format(optimizer))
     c.write("from keras.callbacks import TensorBoard, EarlyStopping")
+    c.write("from keras import regularizers")
     c.write("")
     # In case, tensorflow needs to be replaced with something else
     # c.write("sess = tf.Session()")
@@ -29,7 +30,7 @@ def generate_get_optimizer(optimizer='SGD', learning_rate=0.01, kwargs={}):
     c.write("")
 
 
-def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation_str, kernel_initializer,bias_initializer,dropout=True,dropout_rate=0.1):
+def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation_str, regularizer, kernel_initializer,bias_initializer,dropout=True,dropout_rate=0.1):
     c.write("def get_model():")
     c.indent()
     c.write("model = Sequential()\n")
@@ -39,13 +40,13 @@ def generate_model(inputs,outputs,type, hidden_layers, loss_function, activation
         output_first_layer = outputs
     else:
         output_first_layer = hidden_layers[0]
-    c.write("model.add(Dense({0},input_shape=({1},),kernel_initializer='{2}',bias_initializer='{3}'))".format(output_first_layer,inputs,kernel_initializer,bias_initializer))
+    c.write("model.add(Dense({0},input_shape=({1},),kernel_initializer='{2}',bias_initializer='{3}',kernel_regularizer=regularizers.{4}()))".format(output_first_layer,inputs,kernel_initializer,bias_initializer,regularizer))
     c.write("model.add(Activation('{0}'))".format(activation_str))    
     if dropout and len(hidden_layers) > 0:
         c.write("model.add(Dropout({0}))".format(dropout_rate))
     c.write("")
     for i in range(1, len(hidden_layers)):
-        c.write("model.add(Dense({0}, activation='{1}',kernel_initializer='{2}',bias_initializer='{3}'))".format(hidden_layers[i], activation_str,kernel_initializer,bias_initializer))
+        c.write("model.add(Dense({0}, activation='{1}',kernel_initializer='{2}',bias_initializer='{3}',kernel_regularizer=regularizers.{4}()))".format(hidden_layers[i], activation_str,kernel_initializer,bias_initializer, regularizer))
         if dropout:
             c.write("model.add(Dropout({0}))".format(dropout_rate))
         c.write("")
@@ -83,6 +84,7 @@ def generate_network(
     inputs=3, outputs=2, hidden_layers=[2,4,8], type='regression', activation_str='sigmoid',
     loss_function='mean_squared_error',
     optimizer='SGD', learning_rate=0.01, optimizer_params={},
+    regularizer='l2',
     kernel_initializer='glorot_uniform',
     bias_initializer='glorot_uniform',
     epochs=100,
@@ -106,7 +108,7 @@ def generate_network(
     generate_init(inputs,outputs,hidden_layers,activation_str,optimizer)
     generate_parse_data(c, inputs, outputs)
     generate_get_optimizer(optimizer, learning_rate, kwargs=optimizer_params)
-    generate_model(inputs,outputs,type,hidden_layers, loss_function, activation_str,kernel_initializer,bias_initializer,dropout,dropout_rate)
+    generate_model(inputs,outputs,type,hidden_layers, loss_function, activation_str,regularizer,kernel_initializer,bias_initializer,dropout,dropout_rate)
     generate_training(verbosity,type,epochs,tensorboard)
     generate_testing(verbosity)
 
