@@ -1,8 +1,8 @@
-from .neuralnetwork import generate_network
-from .supportvector import generate_svm
+from .neuralnetwork import NeuralNetworkGenerator
+from .supportvector import SupportVectorMachine
 
 def generate_code(method='neuralnetwork', *args, **kwargs):
     if method == 'neuralnetwork':
-        return generate_network(*args, **kwargs)
+        return NeuralNetworkGenerator(*args, **kwargs)
     elif method == 'supportvector':
-        return generate_svm(*args, **kwargs)
+        return SupportVectorMachine(*args, **kwargs)
