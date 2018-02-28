@@ -8,7 +8,7 @@ class CodeGenerator(object):
         self.outputs = outputs
         self.generate_comments()
         
-    def __str__(self):
+    def end(self):
         return self.c.end()
         
     def generate_comments(self):
