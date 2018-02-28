@@ -54,9 +54,6 @@ class NeuralNetworkGenerator(CodeGenerator):
         """
         TODO: Create a map of all the available optimizer functions and there parameters
         TODO: Add validation of kwargs from optimizer.json
-        >>> generate_get_optimizer()
-        def get_optimizer():
-            return SGD(0.01)
         """
         self.c.write("def get_optimizer():")
         self.c.indent()
