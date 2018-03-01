@@ -48,7 +48,7 @@ class CodeGenerator(object):
         self.c.write("model = get_model()")
         self.c.write("train_model(model, X_train, Y_train)")
         self.c.write("score = test_model(model, X_test, Y_test)")
-        self.c.write("model.save('model.hdf5')")
+        # self.c.write("model.save('model.hdf5')")
         self.c.write("Y_pred = model.predict(X_test)")
         self.c.write("for i in range(len(X_test)):")
         self.c.indent()

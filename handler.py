@@ -23,5 +23,39 @@ def machinelearning_generate(event, context):
     return response
 
 if __name__ == '__main__':
-    code = generate_code(inputs=2,outputs=2,method="neuralnetwork", type="regression", activation_str='hard_sigmoid', loss_function='mean_squared_error', regularizer='l1', kernel_initializer='random_uniform',bias_initializer='random_uniform',optimizer='SGD', learning_rate=0.01, optimizer_params={'decay':0.0001}, verbosity=True, epochs=10000, hidden_layers=[100],dropout=False, tensorboard=False)
+    # Score: [4.1893653907775876, 0.99199999999999999]
+    params = {
+        "inputs":2,
+        "outputs":2,
+        "method":"neuralnetwork",
+        "type":"regression",
+        "activation_str":'hard_sigmoid',
+        "loss_function":'mean_squared_error',
+        "regularizer":'l1',
+        "kernel_initializer":'random_uniform',
+        "bias_initializer":'random_uniform',
+        "optimizer":'SGD',
+        "learning_rate":0.01,
+        "optimizer_params":{
+            'decay':0.0001, 
+            'momentum': 0.01,
+            'nesterov': True
+        },
+        "verbosity":True,
+        "epochs":400,
+        "hidden_layers":[1000],
+        "dropout":False,
+        "tensorboard":False
+    }
+
+    # Score:  0.9688683665
+    # params = {
+    #     "inputs": 2,
+    #     "outputs": 1,
+    #     "type": "regression",
+    #     "method": "supportvector",
+    #     "verbosity": True,
+    #     "kernel": "poly"
+    # }
+    code = generate_code(**params)
     print(code)
