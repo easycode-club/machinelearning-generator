@@ -23,7 +23,7 @@ def machinelearning_generate(event, context):
     return response
 
 if __name__ == '__main__':
-    # Score: [4.1893653907775876, 0.99199999999999999]
+    # Score:  [2.166258760070801, 0.98199999999999998]
     params = {
         "inputs":2,
         "outputs":2,
@@ -48,14 +48,15 @@ if __name__ == '__main__':
         "tensorboard":False
     }
 
-    # Score:  0.9688683665
-    # params = {
-    #     "inputs": 2,
-    #     "outputs": 1,
-    #     "type": "regression",
-    #     "method": "supportvector",
-    #     "verbosity": True,
-    #     "kernel": "poly"
-    # }
+    # Score:  0.999988786778
+    params = {
+        "inputs": 2,
+        "outputs": 1,
+        "type": "regression",
+        "method": "supportvector",
+        "verbosity": True,
+        "kernel": "poly",
+        "degree": 2
+    }
     code = generate_code(**params)
     print(code)

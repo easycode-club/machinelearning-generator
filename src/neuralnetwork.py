@@ -38,6 +38,9 @@ class NeuralNetworkGenerator(CodeGenerator):
         self.generate_testing(verbosity)
 
         self.generate_main()
+    
+    def save_model(self):
+        self.c.write("model.save('model.hdf5')")
 
     def generate_init(self,inputs,outputs,hidden_layers,activation_str,optimizer):
         self.c.write("from keras.models import Sequential")

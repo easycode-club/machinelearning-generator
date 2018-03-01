@@ -7,3 +7,4 @@ __pycache__
 # Generated Files
 output.py
 model.hdf5
+model.pickle

@@ -17,6 +17,7 @@ class CodeGenerator(object):
         self.c.write("")
         self.c.write("import pandas as pd")
         self.c.write("from sklearn.model_selection import train_test_split")
+        self.c.write("import pickle")        
         self.c.write("")
 
     def generate_parse_data(self):
@@ -48,7 +49,7 @@ class CodeGenerator(object):
         self.c.write("model = get_model()")
         self.c.write("train_model(model, X_train, Y_train)")
         self.c.write("score = test_model(model, X_test, Y_test)")
-        # self.c.write("model.save('model.hdf5')")
+        self.save_model()
         self.c.write("Y_pred = model.predict(X_test)")
         self.c.write("for i in range(len(X_test)):")
         self.c.indent()
@@ -62,3 +63,7 @@ class CodeGenerator(object):
         self.c.indent()
         self.c.write("main()")
         self.c.dedent()
+
+    def save_model(self):
+        self.c.write("picklefile = open('model.pickle', 'wb+')")
+        self.c.write("pickle.dump(model, picklefile)")
